@@ -1,0 +1,663 @@
+Program: Android Studio
+Nazwa aplikacji:  AplikacjaPraktyki
+
+*** MainActivity.java ***
+
+Kod:
+
+package com.example.aplikacjapraktyki;
+
+import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.os.Bundle;
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.RatingBar;
+import android.widget.TextView;
+import android.widget.Button;
+import android.widget.ListView;
+import android.view.View;
+import android.widget.Toast;
+import java.util.ArrayList;
+
+public class MainActivity extends AppCompatActivity {
+    //Zmienne:
+    static ListView lista;
+    static ArrayList<String> items;
+    Dialog dialog;
+    Dialog dialog2;
+    Dialog dialog3;
+    Button Przycisk_dodaj;
+    static ListViewAdapter adapter;
+
+
+
+    @SuppressLint("MissingInflatedId")
+    @Override
+
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_main);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+
+        });
+
+
+
+        //Definicja zmiennych:
+        lista = findViewById(R.id.lista);
+        items = new ArrayList<>();
+        adapter = new ListViewAdapter(getApplicationContext(), items);
+        Przycisk_dodaj = findViewById(R.id.Dodaj_przycisk);
+
+
+        dialog = new Dialog(MainActivity.this);
+        dialog.setContentView(R.layout.dodaj_pop);
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.pop_bg));
+        dialog.setCancelable(true);
+
+
+        dialog2 = new Dialog(MainActivity.this);
+        dialog2.setContentView(R.layout.wyswietl_pop);
+        dialog2.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog2.getWindow().setBackgroundDrawable(getDrawable(R.drawable.pop_bg));
+        dialog2.setCancelable(true);
+
+
+        dialog3 = new Dialog(MainActivity.this);
+        dialog3.setContentView(R.layout.czy_usun);
+        dialog3.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog3.getWindow().setBackgroundDrawable(getDrawable(R.drawable.pop_bg));
+        dialog3.setCancelable(true);
+
+
+
+        //Onclicki:
+
+        lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                TextView Opis = dialog2.findViewById(R.id.Opis_wys);
+                TextView Tytul = dialog2.findViewById(R.id.Tytul_wys);
+                Button Usun_przycisk = dialog2.findViewById(R.id.Usun_przycisk);
+                String nazwa = items.get(i);
+                dialog2.show();
+
+                Tytul.setText("Tytuł: " + nazwa); //  bedzie set tyrtul z bazy
+                Opis.setText("Opis: "); //  bedzie set  opis z bazy
+
+                Usun_przycisk.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Button tak = dialog3.findViewById(R.id.tak);
+                        Button nie = dialog3.findViewById(R.id.nie);
+
+                        dialog3.show();
+
+                        tak.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                makeToast("Usunięto: " + nazwa);
+                                usun(i);
+                                dialog3.dismiss();
+                                dialog2.dismiss();
+                            }
+                        });
+
+                        nie.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialog3.dismiss();
+                            }
+                        });
+
+                   }
+
+               });
+
+//                makeToast(nazwa); // jak klikne ma się otworzyć okienko z opisem oceną tytułem itp.
+            }
+
+
+
+
+
+        });
+
+
+    }
+
+
+
+    //Funkcje:
+    public static void usun(int x){
+        items.remove(x);
+        lista.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+}
+    public void Dodaj (View view){
+
+
+        try {
+            EditText Kod_gry = dialog.findViewById(R.id.Kod_gry);
+            EditText Nazwa_gry = dialog.findViewById(R.id.Nazwa_gry);
+            EditText Opis_gry = dialog.findViewById(R.id.Opis_gry);
+            RatingBar Ocena_gry = dialog.findViewById(R.id.Ocena_gry);
+
+
+            float ocena_gry = Ocena_gry.getRating();
+            String opis_gry = String.valueOf(Opis_gry.getText());
+            String tytul_gry = String.valueOf(Nazwa_gry.getText());
+            String kod_gry = String.valueOf(Kod_gry.getText());
+
+
+
+
+//            items.add("Kod gry: " + String.valueOf(kod_gry));
+            items.add( String.valueOf(tytul_gry));
+//            items.add("Opis gry: " + String.valueOf(opis_gry));
+//            items.add("Ocena gry: " + String.valueOf(ocena_gry));
+            lista.setAdapter(adapter);
+            dialog.dismiss();
+        } catch (Exception e){
+            items.add("BŁĄD");
+            lista.setAdapter(adapter);
+            dialog.dismiss();
+        }
+    }
+    public void Wroc(View view){
+        dialog2.dismiss();;
+    }
+
+
+    public void Przycisk(View view){
+
+            dialog.show();
+
+    }
+
+    Toast t;
+    private void makeToast(String s){
+        if(t!=null) t.cancel();
+        t = Toast.makeText(getApplicationContext(),s,Toast.LENGTH_SHORT);
+        t.show();
+    }
+}
+
+===========================================================================================
+
+*** activity_main.xml ***
+
+Kod:
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#7E98DECA"
+    tools:context=".MainActivity"
+    tools:visibility="visible">
+
+    <ListView
+        android:id="@+id/lista"
+        android:layout_width="325dp"
+        android:layout_height="476dp"
+        android:background="#98DECA"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wypisz2"
+        app:layout_constraintVertical_bias="1.0"
+        tools:listitem="@layout/support_simple_spinner_dropdown_item" />
+
+    <TextView
+        android:id="@+id/wypisz"
+        android:layout_width="232dp"
+        android:layout_height="58dp"
+        android:gravity="center"
+        android:text="Dodaj Grę:"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.089"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.177" />
+
+    <TextView
+        android:id="@+id/wypisz2"
+        android:layout_width="235dp"
+        android:layout_height="45dp"
+        android:gravity="center"
+        android:text="Lista Gier:"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.305" />
+
+    <Button
+        android:id="@+id/przycisk"
+        android:layout_width="118dp"
+        android:layout_height="61dp"
+        android:backgroundTint="#000000"
+        android:onClick="Przycisk"
+        android:text="Dodaj"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.887"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.174" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+==============================================================================
+
+
+Dodadtkowa Klasa:
+
+*** ListViewAdapter.java ***
+
+Kod: 
+
+
+package com.example.aplikacjapraktyki;
+
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import java.util.ArrayList;
+
+public class ListViewAdapter extends ArrayAdapter<String> {
+    ArrayList<String> list;
+    Context context;
+
+    public ListViewAdapter(Context context, ArrayList<String>items){
+        super(context,R.layout.list_row, items);
+        this.context = context;
+        list = items;
+    }
+
+    @NonNull
+    @Override
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        if(convertView == null){
+            LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+            convertView = layoutInflater.inflate(R.layout.list_row, null);
+
+            TextView number = convertView.findViewById(R.id.number);
+            number.setText(position + 1 + ".");
+
+            TextView name = convertView.findViewById(R.id.name);
+            name.setText(list.get(position));
+
+            ImageView remove = convertView.findViewById(R.id.remove);
+
+            remove.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MainActivity.usun(position);
+                }
+            });
+        }
+        return convertView;
+    }
+}
+
+
+==========================================================================
+
+Dodatkowe popupy folder (app/res/drawable)
+
+*** pop_bg.xml ***
+
+Kod:
+
+<?xml version="1.0" encoding="utf-8"?>
+<shape android:shape="rectangle" xmlns:android="http://schemas.android.com/apk/res/android">
+    <corners android:radius="20dp"/>
+    <solid android:color="@color/white"/>
+
+</shape>
+
+===================================================
+
+*** usun.xml ***
+
+Kod:
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="24dp" android:tint="#FF4343" android:viewportHeight="24" android:viewportWidth="24" android:width="24dp">
+      
+    <path android:fillColor="@android:color/white" android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM17,13L7,13v-2h10v2z"/>
+    
+</vector>
+
+
+===============================================================================
+
+
+Dodatkowe layout'y (app/res/layout)
+
+*** czy_usun.xml ***
+
+Kod:
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="16dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+
+            android:text="Czy chcesz usunąć grę?"
+            android:textSize="33dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.487"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.12" />
+
+        <Button
+            android:id="@+id/tak"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#000000"
+            android:text="Tak"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.109"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <Button
+            android:id="@+id/nie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="75dp"
+            android:backgroundTint="#000000"
+            android:text="Nie"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.879"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView"
+            app:layout_constraintVertical_bias="0.0" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
+
+
+============================================================
+
+*** dodaj_pop.xml ***
+
+Kod:
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="16dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+
+            android:layout_marginTop="16dp"
+            android:text="Dodaj Grę:"
+            android:textSize="35dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.493"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/Kod_gry"
+            android:layout_width="245dp"
+            android:layout_height="55dp"
+            android:layout_marginTop="8dp"
+            android:ems="10"
+            android:hint="Kod Gry"
+            android:inputType="text"
+            android:text=""
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+        <EditText
+            android:id="@+id/Nazwa_gry"
+            android:layout_width="245dp"
+            android:layout_height="55dp"
+            android:ems="10"
+            android:hint="Nazwa Gry"
+            android:inputType="text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Kod_gry" />
+
+        <EditText
+            android:id="@+id/Opis_gry"
+            android:layout_width="245dp"
+            android:layout_height="55dp"
+            android:layout_marginTop="12dp"
+            android:ems="10"
+            android:gravity="start|top"
+            android:hint="Opis Gry"
+            android:inputType="textMultiLine"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Nazwa_gry" />
+
+        <RatingBar
+            android:id="@+id/Ocena_gry"
+            android:layout_width="245dp"
+            android:layout_height="55dp"
+            android:layout_marginTop="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Opis_gry" />
+
+        <Button
+            android:id="@+id/Dodaj_przycisk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#000000"
+            android:text="Dodaj"
+            android:onClick="Dodaj"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.496"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Ocena_gry" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
+
+
+==================================================================================
+
+*** list_row.xml ***
+
+Kod:
+
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/name"
+        android:layout_marginBottom="2sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"/>
+    
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="28sp"
+        android:textColor="@color/black"
+        android:textSize="20sp"/>
+    
+    <ImageView
+        android:layout_width="22sp"
+        android:layout_height="22sp"
+        android:id="@+id/remove"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="18sp"
+        android:src="@drawable/usun"
+        android:layout_alignParentRight="true"/>
+
+</RelativeLayout>
+
+
+=========================================================================
+
+
+*** wyswietl_pop.xml ***
+
+Kod:
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="16dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/Tytul_wys"
+            android:layout_width="176dp"
+            android:layout_height="46dp"
+            android:layout_margin="20dp"
+
+            android:text="Tytuł:"
+            android:textSize="35dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.372"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.154" />
+
+        <TextView
+            android:id="@+id/Opis_wys"
+            android:layout_width="173dp"
+            android:layout_height="176dp"
+            android:layout_margin="20dp"
+
+            android:text="Opis Gry:"
+            android:textSize="35dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.347"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.497" />
+
+        <Button
+            android:id="@+id/Cofnij_przycisk"
+            android:layout_width="188dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="21dp"
+            android:backgroundTint="#000000"
+            android:onClick="Wroc"
+            android:text="Wróć"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Usun_przycisk" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+
+            android:text="Info o Grze:"
+            android:textSize="35dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <Button
+            android:id="@+id/Usun_przycisk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#000000"
+            android:text="Usuń grę"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.828" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
+
+
+===============================================================================================
