@@ -1,3 +1,6 @@
+
+//W tym pliku mam łączenie z bazą danych (wymagane dodanie pliku mysql-connector-java-5.0.8.jar do kataligu libs)
+
 import java.sql.*;
 import java.util.logging.Logger;
 
