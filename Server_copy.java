@@ -7,6 +7,7 @@ import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
@@ -36,20 +37,23 @@ public class Server_copy {
                 if (exchange.getRequestMethod().equals("GET")) {
                     try {
                         // Stream do ktorego zapisujemy odpowiedz
+                        Integer i = 1;
+                        while(i<=Connect.table_length()){
                         OutputStream responseBody = exchange.getResponseBody();
 
                         // To jest potrzebne do oznaczenia odpowiedzi jako JSON wykorzystywany przy REST API
                         exchange.getResponseHeaders().set("Content-Type", "application/json");
-                        Connect.getGames();
                         // To przukladowy obiekt ktory jest zwracany w odpowiedzi
                         HttpResponse responseEntity = new HttpResponse(
-                                Connect.getCode(),
-                                Connect.getTitle(),
-                                Connect.getDescription(),
-                                Connect.getRate()
+                                Connect.getCode(i),
+                                Connect.getTitle(i),
+                                i.toString(),
+                                Connect.getRate(i)
                             
                         );
-
+                        
+                        LOG.info("to jest i: " + i.toString());
+                        i++;
                         // Tutaj nastepuje zamiana obiektu na JSONa
                         String jsonResponse = objectMapper.writeValueAsString(responseEntity);
                         LOG.info("Response: " + jsonResponse);
@@ -58,6 +62,7 @@ public class Server_copy {
                         exchange.sendResponseHeaders(200, jsonResponse.getBytes().length);
                         responseBody.write(jsonResponse.getBytes(StandardCharsets.UTF_8));
                         responseBody.close();
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                         LOG.severe("Unknown error: " + e.getMessage());
