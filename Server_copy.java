@@ -47,7 +47,7 @@ public class Server_copy {
                         HttpResponse responseEntity = new HttpResponse(
                                 Connect.getCode(i),
                                 Connect.getTitle(i),
-                                i.toString(),
+                                Connect.getDescription(i),
                                 Connect.getRate(i)
                             
                         );
