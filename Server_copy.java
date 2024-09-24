@@ -38,7 +38,7 @@ public class Server_copy {
                     try {
                         // Stream do ktorego zapisujemy odpowiedz
 
-                        // pętli while używam do wywołania wszystkich danych z bazy
+                        // w tym  miejscu wybieram wszystkie rekordy z bazy
                         Integer i = 1;
                         while(i<=Connect.table_length()){
                         OutputStream responseBody = exchange.getResponseBody();
@@ -60,10 +60,10 @@ public class Server_copy {
                         String jsonResponse = objectMapper.writeValueAsString(responseEntity);
                         LOG.info("Response: " + jsonResponse);
 
-                        // Tutaj wysylamy odpowiedz + naglowki
-                        exchange.sendResponseHeaders(200, jsonResponse.getBytes().length);
-                        responseBody.write(jsonResponse.getBytes(StandardCharsets.UTF_8));
-                        responseBody.close();
+                        // Tutaj wysylamy odpowiedz + naglowki ( jest zakomentowane, bo wywala pętle na 2 okrążeniu)
+                        // exchange.sendResponseHeaders(200, jsonResponse.getBytes().length);
+                        // responseBody.write(jsonResponse.getBytes(StandardCharsets.UTF_8));
+                        // responseBody.close();
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
