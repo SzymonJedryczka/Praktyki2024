@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 public class Connect {
 
     private static Logger LOG = Logger.getLogger(Server.class.getName());
+
+    //metoda pobierająca ilość rekordów z bazy
     
     public static Integer table_length(){
         try {
@@ -25,6 +27,8 @@ public class Connect {
         return 2;
     }
 
+    //gettery wszystkich kolumn z bazy (code, title, description, rate)
+    
     public static String getCode(Integer i){
         
         try {
