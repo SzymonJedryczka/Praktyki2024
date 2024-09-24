@@ -37,6 +37,8 @@ public class Server_copy {
                 if (exchange.getRequestMethod().equals("GET")) {
                     try {
                         // Stream do ktorego zapisujemy odpowiedz
+
+                        // pętli while używam do wywołania wszystkich danych z bazy
                         Integer i = 1;
                         while(i<=Connect.table_length()){
                         OutputStream responseBody = exchange.getResponseBody();
